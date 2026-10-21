@@ -1,0 +1,1339 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#0b0f0d" />
+    <title>Firefly Forest — Sound Journey</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #0b0f0d;
+        --card: #131916;
+        --line: #2a352d;
+        --muted: #879588;
+        --text: #edf1e7;
+        --accent: #d6e68e;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: var(--bg);
+        color: var(--text);
+        font:
+          14px/1.35 -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+      main {
+        width: min(680px, 100%);
+        padding: 40px 22px;
+      }
+      header,
+      .labelrow,
+      .source-head,
+      .mix-head,
+      .source-info,
+      .footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      header {
+        margin-bottom: 35px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 650;
+        letter-spacing: 0.16em;
+      }
+      .pill {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.13em;
+        color: var(--muted);
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+      .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #536257;
+        display: inline-block;
+      }
+      .pill.on {
+        color: var(--accent);
+      }
+      .pill.on .dot {
+        background: var(--accent);
+        box-shadow: 0 0 12px #d6e68e99;
+      }
+      section {
+        margin: 0 0 27px;
+      }
+      .labelrow,
+      .mix-head {
+        margin-bottom: 12px;
+      }
+      .overline {
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        color: var(--muted);
+        font-weight: 700;
+      }
+      .stage-readout {
+        color: var(--accent);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+      }
+      .stages {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+      }
+      button {
+        appearance: none;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        background: var(--card);
+        color: var(--text);
+        font: inherit;
+        cursor: pointer;
+        transition:
+          background 0.15s,
+          border-color 0.15s,
+          transform 0.15s;
+      }
+      button:hover {
+        border-color: #6c8465;
+        background: #1c2920;
+      }
+      button:active {
+        transform: translateY(1px);
+      }
+      button:focus-visible,
+      input:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+      .stages button {
+        height: 87px;
+        font-weight: 550;
+        font-size: 27px;
+        font-variant-numeric: tabular-nums;
+        color: #91a18e;
+      }
+      .stages button.active {
+        color: #192216;
+        background: var(--accent);
+        border-color: var(--accent);
+        box-shadow: 0 0 24px #d6e68e14;
+      }
+      .stages button.complete:not(.active) {
+        color: var(--accent);
+        border-color: #5c7051;
+      }
+      .progress {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+        margin: 12px 0 0;
+      }
+      .progress span {
+        height: 2px;
+        background: #29372c;
+        transition: background 0.2s;
+      }
+      .progress span.lit {
+        background: var(--accent);
+      }
+      .actions {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr 0.75fr;
+        gap: 8px;
+      }
+      .actions button {
+        height: 48px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+      }
+      .actions .primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #172117;
+      }
+      .actions .primary:hover {
+        background: #e5f1aa;
+      }
+      #masterVal,
+      .mix-value {
+        font-size: 11px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .panel {
+        border: 1px solid var(--line);
+        background: #101612;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      .track {
+        padding: 15px 17px;
+        border-bottom: 1px solid var(--line);
+      }
+      .source-info {
+        margin-bottom: 12px;
+      }
+      .source-name {
+        font-size: 13px;
+        font-weight: 620;
+      }
+      .source-state {
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        text-transform: uppercase;
+        margin-left: 10px;
+      }
+      .source-state.good {
+        color: #b6d182;
+      }
+      .source-state.bad {
+        color: #e0a394;
+      }
+      .tools {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .load {
+        padding: 5px 10px;
+        border-radius: 6px;
+        letter-spacing: 0.12em;
+        font-weight: 650;
+        font-size: 10px;
+        color: #b9c7ad;
+      }
+      .track-bottom {
+        display: grid;
+        grid-template-columns: 1fr 44px;
+        gap: 13px;
+        align-items: center;
+      }
+      input[type="range"] {
+        width: 100%;
+        margin: 0;
+        accent-color: var(--accent);
+        height: 19px;
+        cursor: pointer;
+      }
+      .master {
+        display: grid;
+        grid-template-columns: 65px 1fr 42px;
+        align-items: center;
+        gap: 12px;
+        padding: 17px;
+      }
+      .master label {
+        font-size: 12px;
+        color: #c9d5bf;
+      }
+      .footer {
+        font-size: 11px;
+        color: #728573;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 21px;
+      }
+      kbd {
+        font: inherit;
+        color: #c6d5b7;
+      }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+      @media (max-width: 480px) {
+        main {
+          padding: 26px 14px;
+        }
+        header {
+          margin-bottom: 30px;
+        }
+        .stages {
+          gap: 5px;
+        }
+        .stages button {
+          height: 68px;
+          font-size: 23px;
+        }
+        .actions {
+          grid-template-columns: 1fr 1fr;
+        }
+        .actions button {
+          height: 46px;
+        }
+        .track {
+          padding: 14px 12px;
+        }
+        .source-state {
+          margin-left: 5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>FIREFLY FOREST</h1>
+        <div class="pill" id="playState">
+          <span class="dot"></span><span id="playStateText">OFF</span>
+        </div>
+      </header>
+      <section>
+        <div class="labelrow">
+          <span class="overline">PATH / STAGES</span
+          ><span class="stage-readout" id="stageLabel">IDLE</span>
+        </div>
+        <div class="stages" id="stages">
+          <button
+            data-stage="1"
+            aria-label="Stage 1"
+            title="Stage 1"
+            aria-pressed="false"
+          >
+            01
+          </button>
+          <button
+            data-stage="2"
+            aria-label="Stage 2"
+            title="Stage 2"
+            aria-pressed="false"
+          >
+            02
+          </button>
+          <button
+            data-stage="3"
+            aria-label="Stage 3"
+            title="Stage 3"
+            aria-pressed="false"
+          >
+            03
+          </button>
+          <button
+            data-stage="4"
+            aria-label="Stage 4"
+            title="Stage 4"
+            aria-pressed="false"
+          >
+            04
+          </button>
+          <button
+            data-stage="5"
+            aria-label="Stage 5 / Reveal"
+            title="Stage 5 / Reveal"
+            aria-pressed="false"
+          >
+            05
+          </button>
+        </div>
+        <div class="progress" id="progress" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </section>
+      <section>
+        <div class="actions">
+          <button class="primary" id="toggle">START</button>
+          <button id="next">NEXT →</button>
+          <button id="reset">RESET</button>
+          <button id="note" title="Play one firefly note">NOTE ✦</button>
+        </div>
+      </section>
+      <section>
+        <div class="mix-head">
+          <span class="overline">AUDIO / MIX</span
+          ><span class="overline">F MIN · 85 BPM</span>
+        </div>
+        <div class="panel">
+          <div class="track">
+            <div class="source-info">
+              <div>
+                <span class="source-name">forest1.mp3</span
+                ><span
+                  class="source-state"
+                  id="forest1Status"
+                  aria-live="polite"
+                  >AUTO</span
+                >
+              </div>
+              <div class="tools">
+                <button
+                  class="load"
+                  data-load="forest1"
+                  title="Choose forest1 audio file"
+                >
+                  LOAD
+                </button>
+              </div>
+            </div>
+            <div class="track-bottom">
+              <label class="sr-only" for="forest1Trim">Forest 1 level</label
+              ><input
+                id="forest1Trim"
+                type="range"
+                min="0"
+                max="150"
+                value="100"
+              /><span class="mix-value" id="forest1TrimLabel">100%</span>
+            </div>
+            <input id="forest1File" type="file" accept="audio/*" hidden />
+          </div>
+          <div class="track">
+            <div class="source-info">
+              <div>
+                <span class="source-name">forest2.mp3</span
+                ><span
+                  class="source-state"
+                  id="forest2Status"
+                  aria-live="polite"
+                  >AUTO</span
+                >
+              </div>
+              <div class="tools">
+                <button
+                  class="load"
+                  data-load="forest2"
+                  title="Choose forest2 audio file"
+                >
+                  LOAD
+                </button>
+              </div>
+            </div>
+            <div class="track-bottom">
+              <label class="sr-only" for="forest2Trim">Forest 2 level</label
+              ><input
+                id="forest2Trim"
+                type="range"
+                min="0"
+                max="150"
+                value="100"
+              /><span class="mix-value" id="forest2TrimLabel">100%</span>
+            </div>
+            <input id="forest2File" type="file" accept="audio/*" hidden />
+          </div>
+          <div class="track">
+            <div class="source-info">
+              <div>
+                <span class="source-name">base.mp3</span
+                ><span class="source-state" id="baseStatus" aria-live="polite"
+                  >AUTO</span
+                >
+              </div>
+              <div class="tools">
+                <button
+                  class="load"
+                  data-load="base"
+                  title="Choose base audio file"
+                >
+                  LOAD
+                </button>
+              </div>
+            </div>
+            <div class="track-bottom">
+              <label class="sr-only" for="baseTrim">Base music level</label
+              ><input
+                id="baseTrim"
+                type="range"
+                min="0"
+                max="150"
+                value="100"
+              /><span class="mix-value" id="baseTrimLabel">100%</span>
+            </div>
+            <input id="baseFile" type="file" accept="audio/*" hidden />
+          </div>
+          <div class="master">
+            <label for="volume">MASTER</label
+            ><input
+              id="volume"
+              type="range"
+              min="0"
+              max="100"
+              value="75"
+            /><span class="mix-value" id="volumeLabel">75%</span>
+          </div>
+        </div>
+      </section>
+      <footer class="footer">
+        <span><kbd>1–5</kbd> stages</span><span><kbd>SPACE</kbd> next</span
+        ><span><kbd>R</kbd> reset</span><span><kbd>F</kbd> note</span>
+      </footer>
+      <div class="sr-only" id="liveMessage" aria-live="polite"></div>
+      <audio id="forest1" src="forest1.mp3" loop preload="auto"></audio>
+      <audio id="forest2" src="forest2.mp3" loop preload="auto"></audio>
+      <audio id="base" src="base.mp3" loop preload="auto"></audio>
+    </main>
+    <script>
+      (() => {
+        "use strict";
+        // Firefly Forest | five chapters on one continuous path.
+        // All synth notes are F minor pentatonic; the tempo is 85 BPM.
+        const BPM = 85,
+          BEAT = 60 / BPM,
+          EIGHTH = BEAT / 2;
+        const SCALE = [65, 68, 70, 72, 75, 77, 80, 82, 84, 87, 89, 92]; // F4 Ab4 Bb4 C5 Eb5 F5 Ab5 Bb5 C6 Eb6 F6 Ab6
+        const TRACKS = [
+          {
+            id: "forest1",
+            file: "forest1.mp3",
+            levels: [0.48, 0.49, 0.45, 0.4, 0.34, 0.38],
+            cuts: [2000, 2200, 2800, 3400, 4050, 4500],
+            pan: -0.23,
+          },
+          {
+            id: "forest2",
+            file: "forest2.mp3",
+            levels: [0.38, 0.39, 0.36, 0.32, 0.28, 0.33],
+            cuts: [1650, 2100, 2900, 3550, 4300, 4850],
+            pan: 0.24,
+          },
+          {
+            id: "base",
+            file: "base.mp3",
+            levels: [0.012, 0.055, 0.155, 0.31, 0.48, 0.69],
+            cuts: [720, 1350, 3000, 5800, 10500, 18500],
+            pan: 0,
+          },
+        ].map((t) => ({
+          ...t,
+          el: document.getElementById(t.id),
+          status: document.getElementById(t.id + "Status"),
+          trim: 1,
+          objectUrl: null,
+        }));
+        const NAMES = [
+          "IDLE",
+          "FIRST LIGHT",
+          "THE TRAIL",
+          "AWAKENING",
+          "THE CALL",
+          "THE REVEAL",
+        ];
+        const $ = (id) => document.getElementById(id),
+          buttons = [...document.querySelectorAll("[data-stage]")];
+        const progressSegments = [
+          ...document.querySelectorAll("#progress span"),
+        ];
+        let ctx,
+          compressor,
+          master,
+          bellBus,
+          bellDry,
+          bellWet,
+          reverb,
+          echo,
+          padLevel,
+          windLevel,
+          windFilter,
+          shimmerLevel;
+        let playing = false,
+          stage = 0,
+          initialized = false,
+          userMaster = 0.75,
+          serial = 0,
+          tickTimer = null,
+          ambientTimer = null;
+        let nextTick = 0,
+          step = 0,
+          melodyGate,
+          fireflyPanners = [],
+          seed = 839127;
+        const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
+        const midiHz = (m) => 440 * Math.pow(2, (m - 69) / 12);
+        const rand = () => {
+          seed = (seed * 16807) % 2147483647;
+          return (seed - 1) / 2147483646;
+        };
+        const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+        function fade(param, to, duration = 3) {
+          if (!ctx) return;
+          const t = ctx.currentTime,
+            from = Number(param.value) || 0;
+          // Ramps are deliberately used instead of overlapping curves: rapid stage switching
+          // must not cause AudioParam scheduling errors or a sudden loudness jump.
+          param.cancelScheduledValues(t);
+          param.setValueAtTime(Math.max(0, from), t);
+          if (duration <= 0.03) param.setValueAtTime(to, t);
+          else {
+            const mid = from + (to - from) * 0.78;
+            param.linearRampToValueAtTime(mid, t + duration * 0.68);
+            param.linearRampToValueAtTime(to, t + duration);
+          }
+        }
+
+        function envelope(g, t, peak, attack, hold, release) {
+          g.gain.setValueAtTime(0.00001, t);
+          g.gain.linearRampToValueAtTime(Math.max(0.00002, peak), t + attack);
+          g.gain.setValueAtTime(Math.max(0.00002, peak), t + attack + hold);
+          g.gain.exponentialRampToValueAtTime(
+            0.00001,
+            t + attack + hold + release,
+          );
+        }
+        function updateUI() {
+          $("stageLabel").textContent =
+            stage === 0 ? "IDLE" : `${String(stage).padStart(2, "0")} / 05`;
+          buttons.forEach((b, i) => {
+            const active = stage === i + 1;
+            b.classList.toggle("active", active);
+            b.classList.toggle("complete", i < stage - 1);
+            b.setAttribute("aria-pressed", String(active));
+            b.title = `${i + 1} / ${NAMES[i + 1]}`;
+          });
+          progressSegments.forEach((s, i) =>
+            s.classList.toggle("lit", i < stage),
+          );
+          $("playState").classList.toggle("on", playing);
+          $("playStateText").textContent = playing
+            ? "ON"
+            : initialized
+              ? "PAUSED"
+              : "OFF";
+          $("toggle").textContent = playing ? "PAUSE" : "START";
+        }
+        function impulse() {
+          const seconds = 3.6,
+            length = Math.floor(ctx.sampleRate * seconds),
+            buf = ctx.createBuffer(2, length, ctx.sampleRate);
+          for (let ch = 0; ch < 2; ch++) {
+            const out = buf.getChannelData(ch);
+            let f = 0;
+            for (let i = 0; i < length; i++) {
+              f = 0.69 * f + 0.31 * (rand() * 2 - 1);
+              const t = i / ctx.sampleRate;
+              out[i] = f * (1 - Math.exp(-t * 75)) * Math.exp(-t * 1.48) * 0.34;
+            }
+            for (const [delay, vol] of [
+              [0.063, 0.09],
+              [0.123, 0.07],
+              [0.208, 0.05],
+              [0.31, 0.025],
+            ]) {
+              const ix = Math.floor((delay + ch * 0.012) * ctx.sampleRate);
+              if (ix < length) out[ix] += vol;
+            }
+          }
+          return buf;
+        }
+        function noiseBuffer() {
+          const len = (ctx.sampleRate * 3) | 0,
+            buf = ctx.createBuffer(1, len, ctx.sampleRate),
+            d = buf.getChannelData(0);
+          let b0 = 0,
+            b1 = 0,
+            b2 = 0;
+          for (let i = 0; i < len; i++) {
+            const n = rand() * 2 - 1;
+            b0 = 0.99765 * b0 + n * 0.099046;
+            b1 = 0.963 * b1 + n * 0.2965164;
+            b2 = 0.57 * b2 + n * 1.0526913;
+            d[i] = (b0 + b1 + b2 + n * 0.1848) * 0.075;
+          }
+          return buf;
+        }
+        function initialize() {
+          ctx = new (window.AudioContext || window.webkitAudioContext)();
+          master = ctx.createGain();
+          master.gain.value = 0;
+          compressor = ctx.createDynamicsCompressor();
+          compressor.threshold.value = -18;
+          compressor.knee.value = 18;
+          compressor.ratio.value = 2.6;
+          compressor.attack.value = 0.012;
+          compressor.release.value = 0.34;
+          master.connect(compressor);
+          compressor.connect(ctx.destination);
+          // One shared spatial environment for both MP3 ambience and synthesized fireflies.
+          reverb = ctx.createConvolver();
+          reverb.buffer = impulse();
+          const wetHP = ctx.createBiquadFilter();
+          wetHP.type = "highpass";
+          wetHP.frequency.value = 220;
+          const wetLP = ctx.createBiquadFilter();
+          wetLP.type = "lowpass";
+          wetLP.frequency.value = 5500;
+          const wetOutput = ctx.createGain();
+          wetOutput.gain.value = 0.38;
+          reverb.connect(wetHP);
+          wetHP.connect(wetLP);
+          wetLP.connect(wetOutput);
+          wetOutput.connect(master);
+          bellDry = ctx.createGain();
+          bellDry.gain.value = 0.64;
+          bellDry.connect(master);
+          bellWet = ctx.createGain();
+          bellWet.gain.value = 0.55;
+          bellWet.connect(reverb);
+          echo = ctx.createDelay(1.3);
+          echo.delayTime.value = BEAT * 0.75;
+          const echoTone = ctx.createBiquadFilter();
+          echoTone.type = "lowpass";
+          echoTone.frequency.value = 2400;
+          const echoFeedback = ctx.createGain();
+          echoFeedback.gain.value = 0.22;
+          echo.connect(echoTone);
+          echoTone.connect(echoFeedback);
+          echoFeedback.connect(echo);
+          const echoWet = ctx.createGain();
+          echoWet.gain.value = 0.23;
+          echoTone.connect(echoWet);
+          echoWet.connect(bellWet);
+          bellBus = ctx.createBiquadFilter();
+          bellBus.type = "lowpass";
+          bellBus.frequency.value = 3400;
+          bellBus.Q.value = 0.6;
+          bellBus.connect(bellDry);
+          bellBus.connect(bellWet);
+          const echoSend = ctx.createGain();
+          echoSend.gain.value = 0.17;
+          bellBus.connect(echoSend);
+          echoSend.connect(echo);
+          melodyGate = ctx.createGain();
+          melodyGate.gain.value = 1;
+          melodyGate.connect(bellBus);
+          TRACKS.forEach((track, i) => {
+            const src = ctx.createMediaElementSource(track.el);
+            const hi = ctx.createBiquadFilter();
+            hi.type = "highpass";
+            hi.frequency.value = i === 0 ? 75 : i === 1 ? 105 : 40;
+            const lo = ctx.createBiquadFilter();
+            lo.type = "lowpass";
+            lo.frequency.value = track.cuts[0];
+            lo.Q.value = 0.7;
+            const pan = ctx.createStereoPanner();
+            pan.pan.value = track.pan;
+            const gain = ctx.createGain();
+            gain.gain.value = track.levels[0] * track.trim;
+            src.connect(hi);
+            hi.connect(lo);
+            lo.connect(pan);
+            pan.connect(gain);
+            gain.connect(master);
+            if (i < 2) {
+              const ambientSend = ctx.createGain();
+              ambientSend.gain.value = 0.055;
+              gain.connect(ambientSend);
+              ambientSend.connect(reverb);
+            }
+            track.gain = gain;
+            track.filter = lo;
+            track.panNode = pan;
+            if (i < 2) {
+              const lfo = ctx.createOscillator(),
+                depth = ctx.createGain();
+              lfo.type = "sine";
+              lfo.frequency.value = i === 0 ? 0.019 : 0.027;
+              depth.gain.value = 0.11;
+              lfo.connect(depth);
+              depth.connect(pan.pan);
+              lfo.start();
+            }
+          });
+          // Constant quiet atmospheric movement; level and brightness evolve by stage.
+          const noise = noiseBuffer(),
+            windSrc = ctx.createBufferSource();
+          windSrc.buffer = noise;
+          windSrc.loop = true;
+          windFilter = ctx.createBiquadFilter();
+          windFilter.type = "bandpass";
+          windFilter.frequency.value = 620;
+          windFilter.Q.value = 0.25;
+          windLevel = ctx.createGain();
+          windLevel.gain.value = 0.01;
+          windSrc.connect(windFilter);
+          windFilter.connect(windLevel);
+          windLevel.connect(master);
+          windLevel.connect(bellWet);
+          const windLFO = ctx.createOscillator(),
+            windLfoDepth = ctx.createGain();
+          windLFO.frequency.value = 0.055;
+          windLfoDepth.gain.value = 155;
+          windLFO.connect(windLfoDepth);
+          windLfoDepth.connect(windFilter.frequency);
+          windLFO.start();
+          windSrc.start();
+          // Persistent, harmonically safe chord bed. Muted until the forest begins to open.
+          padLevel = ctx.createGain();
+          padLevel.gain.value = 0;
+          const padLP = ctx.createBiquadFilter();
+          padLP.type = "lowpass";
+          padLP.frequency.value = 1450;
+          padLevel.connect(padLP);
+          padLP.connect(master);
+          const padSend = ctx.createGain();
+          padSend.gain.value = 0.23;
+          padLP.connect(padSend);
+          padSend.connect(reverb);
+          [53, 56, 60, 63, 67].forEach((m, i) => {
+            const osc = ctx.createOscillator(),
+              g = ctx.createGain(),
+              pan = ctx.createStereoPanner();
+            osc.type = i === 0 ? "triangle" : "sine";
+            osc.frequency.value = midiHz(m);
+            osc.detune.value = (i % 2 ? 1 : -1) * [1.7, 3.2, 2.4, 4.1, 2.5][i];
+            g.gain.value = [0.3, 0.21, 0.22, 0.13, 0.09][i];
+            pan.pan.value = [-0.45, 0.35, -0.18, 0.52, 0][i];
+            osc.connect(g);
+            g.connect(pan);
+            pan.connect(padLevel);
+            osc.start();
+          });
+          shimmerLevel = ctx.createGain();
+          shimmerLevel.gain.value = 0.15;
+          shimmerLevel.connect(bellWet);
+          initialized = true;
+        }
+        function freshGate() {
+          if (!ctx) return;
+          const previous = melodyGate;
+          melodyGate = ctx.createGain();
+          melodyGate.gain.value = 1;
+          melodyGate.connect(bellBus);
+          if (previous) {
+            fade(previous.gain, 0, 2.6);
+            setTimeout(() => {
+              try {
+                previous.disconnect();
+              } catch (e) {}
+            }, 18000);
+          }
+        }
+        function setMix(s, fast = false) {
+          if (!ctx) return;
+          const durations = fast ? 1.5 : [6.5, 3.5, 4.1, 4.7, 4.9, 5.6];
+          TRACKS.forEach((t) => {
+            fade(
+              t.gain.gain,
+              t.levels[s] * t.trim,
+              durations[s] * (t.id === "base" ? 1 : 1.1),
+            );
+            fade(t.filter.frequency, t.cuts[s], durations[s] * 1.08);
+          });
+          fade(bellBus.frequency, [2750, 3550, 4350, 5200, 6000, 7300][s], 4.1);
+          fade(
+            padLevel.gain,
+            [0, 0.001, 0.008, 0.022, 0.04, 0.061][s],
+            s === 5 ? 7.2 : 5.1,
+          );
+          fade(
+            windLevel.gain,
+            [0.01, 0.012, 0.014, 0.016, 0.022, 0.018][s],
+            4.6,
+          );
+          fade(windFilter.frequency, [530, 600, 720, 890, 1090, 920][s], 6);
+          fade(shimmerLevel.gain, [0.12, 0.18, 0.25, 0.3, 0.42, 0.56][s], 4.6);
+        }
+        function connectVoice(source, pan, t, gate = melodyGate) {
+          const p = ctx.createStereoPanner();
+          p.pan.setValueAtTime(clamp(pan, -0.9, 0.9), t);
+          source.connect(p);
+          p.connect(gate);
+          return p;
+        }
+        function bell(
+          midi,
+          at,
+          pan = 0,
+          volume = 0.055,
+          length = 2.1,
+          gate = melodyGate,
+        ) {
+          if (!ctx) return;
+          const t = Math.max(ctx.currentTime + 0.015, at),
+            env = ctx.createGain();
+          const peak = volume * (0.9 + rand() * 0.13);
+          envelope(env, t, peak, 0.018 + 0.02 * rand(), 0.025, length);
+          const p = connectVoice(env, pan, t, gate);
+          const overtones = [
+            [1, 0.9, "sine"],
+            [2.005, 0.13, "sine"],
+            [3.93, 0.05, "sine"],
+          ];
+          overtones.forEach(([ratio, amount, wave], i) => {
+            const osc = ctx.createOscillator(),
+              g = ctx.createGain();
+            osc.type = wave;
+            osc.frequency.value = midiHz(midi) * ratio;
+            g.gain.value = amount;
+            osc.connect(g);
+            g.connect(env);
+            osc.start(t);
+            osc.stop(t + length + 0.2);
+            osc.onended = () => {
+              try {
+                osc.disconnect();
+                g.disconnect();
+              } catch (e) {}
+            };
+          });
+          setTimeout(
+            () => {
+              try {
+                env.disconnect();
+                p.disconnect();
+              } catch (e) {}
+            },
+            (Math.max(0, t - ctx.currentTime) + length + 2) * 1000,
+          );
+        }
+        function bloomTone(
+          midi,
+          at,
+          pan,
+          volume = 0.04,
+          duration = 5.5,
+          gate = melodyGate,
+        ) {
+          const t = Math.max(ctx.currentTime + 0.02, at),
+            env = ctx.createGain();
+          envelope(
+            env,
+            t,
+            volume,
+            Math.min(duration * 0.3, 1.8),
+            Math.max(0.05, duration * 0.31),
+            Math.max(1.5, duration * 0.39),
+          );
+          const p = connectVoice(env, pan, t, gate);
+          for (const [ratio, v] of [
+            [1, 0.8],
+            [2, 0.16],
+            [0.5, 0.2],
+          ]) {
+            const osc = ctx.createOscillator(),
+              g = ctx.createGain();
+            osc.type = "sine";
+            osc.frequency.value = midiHz(midi) * ratio;
+            osc.detune.value = (rand() - 0.5) * 7;
+            g.gain.value = v;
+            osc.connect(g);
+            g.connect(env);
+            osc.start(t);
+            osc.stop(t + duration + 0.14);
+            osc.onended = () => {
+              osc.disconnect();
+              g.disconnect();
+            };
+          }
+          setTimeout(
+            () => {
+              try {
+                env.disconnect();
+                p.disconnect();
+              } catch (e) {}
+            },
+            (Math.max(0, t - ctx.currentTime) + duration + 2) * 1000,
+          );
+        }
+        function airSweep(
+          at,
+          duration = 2.3,
+          intensity = 0.045,
+          direction = 1,
+          gate = melodyGate,
+        ) {
+          const t = Math.max(ctx.currentTime + 0.02, at),
+            n = ctx.createBufferSource();
+          n.buffer = noiseBuffer();
+          n.loop = true;
+          const bp = ctx.createBiquadFilter();
+          bp.type = "bandpass";
+          bp.Q.value = 0.9;
+          bp.frequency.setValueAtTime(direction === 1 ? 320 : 1800, t);
+          bp.frequency.exponentialRampToValueAtTime(
+            direction === 1 ? 2400 : 450,
+            t + duration * 0.82,
+          );
+          const env = ctx.createGain(),
+            p = ctx.createStereoPanner();
+          p.pan.setValueAtTime(-0.45 * direction, t);
+          p.pan.linearRampToValueAtTime(0.45 * direction, t + duration);
+          envelope(
+            env,
+            t,
+            intensity,
+            Math.min(duration * 0.45, 0.9),
+            0.1,
+            Math.max(0.55, duration * 0.48),
+          );
+          n.connect(bp);
+          bp.connect(env);
+          env.connect(p);
+          p.connect(gate);
+          n.start(t);
+          n.stop(t + duration + 0.15);
+          n.onended = () => {
+            n.disconnect();
+            bp.disconnect();
+            env.disconnect();
+            p.disconnect();
+          };
+        }
+        function lowPulse(at, volume = 0.028) {
+          const t = Math.max(ctx.currentTime + 0.02, at),
+            env = ctx.createGain(),
+            osc = ctx.createOscillator();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(110, t);
+          osc.frequency.exponentialRampToValueAtTime(87.31, t + 0.4);
+          envelope(env, t, volume, 0.07, 0.04, 0.6);
+          osc.connect(env);
+          env.connect(melodyGate);
+          osc.start(t);
+          osc.stop(t + 0.87);
+          osc.onended = () => {
+            osc.disconnect();
+            env.disconnect();
+          };
+        }
+        function entryCue(which) {
+          if (!ctx || !which) return;
+          const t = ctx.currentTime + 0.09,
+            g = melodyGate;
+          const configs = {
+            1: { notes: [0, 2, 1], pace: BEAT * 0.9, vol: 0.051, pan: -0.4 },
+            2: {
+              notes: [0, 1, 2, 3, 4, 3],
+              pace: BEAT * 0.64,
+              vol: 0.063,
+              pan: -0.72,
+            },
+            3: {
+              notes: [0, 2, 4, 3, 5, 4, 6, 5],
+              pace: BEAT * 0.52,
+              vol: 0.072,
+              pan: -0.75,
+            },
+            4: {
+              notes: [2, 3, 4, 5, 6, 7, 8, 6, 7, 9],
+              pace: BEAT * 0.35,
+              vol: 0.079,
+              pan: -0.78,
+            },
+            5: {
+              notes: [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4],
+              pace: BEAT * 0.22,
+              vol: 0.089,
+              pan: -0.86,
+            },
+          };
+          const c = configs[which];
+          c.notes.forEach((k, i) => {
+            const pan = clamp(
+              c.pan + (1.5 * i) / Math.max(1, c.notes.length - 1),
+              -0.89,
+              0.89,
+            );
+            const m = SCALE[k],
+              v = c.vol * (0.85 + 0.2 * rand());
+            bell(m, t + i * c.pace, pan, v, which === 5 ? 3.2 : 2.25, g);
+          });
+          if (which === 1) bloomTone(72, t + 0.1, 0.13, 0.013, 4, g);
+          if (which === 2) {
+            airSweep(t + 0.4, 2.2, 0.018, 1, g);
+            bloomTone(75, t + BEAT * 2, 0.45, 0.019, 5, g);
+          }
+          if (which === 3) {
+            airSweep(t + 0.2, 2.9, 0.03, -1, g);
+            bloomTone(77, t + BEAT * 2, -0.28, 0.026, 6.5, g);
+          }
+          if (which === 4) {
+            airSweep(t, 4.1, 0.061, 1, g);
+            lowPulse(t + BEAT * 0.5, 0.03);
+            bloomTone(80, t + BEAT * 2, 0.35, 0.039, 7.5, g);
+          }
+          if (which === 5) {
+            airSweep(t, 5.8, 0.085, 1, g);
+            // Fm9 arrival: F - Ab - C - Eb - G. A luminous resolution, not a sudden stinger.
+            const arrival = t + BEAT * 2.5;
+            [
+              [53, -0.66],
+              [56, -0.35],
+              [60, -0.1],
+              [63, 0.18],
+              [67, 0.48],
+              [72, 0.68],
+            ].forEach(([m, pan], i) => {
+              bloomTone(m, arrival + i * 0.16, pan, 0.053, 11.5, g);
+            });
+            bell(89, arrival + BEAT * 2, 0.35, 0.058, 4.2, g);
+          }
+        }
+        function stagePattern(n) {
+          const patterns = {
+            1: { 0: 0, 10: 2 },
+            2: { 0: 0, 3: 2, 7: 3, 11: 4 },
+            3: { 0: 0, 2: 3, 5: 4, 8: 2, 10: 5, 14: 3 },
+            4: {
+              0: 2,
+              2: 4,
+              3: 5,
+              5: 6,
+              6: 7,
+              8: 4,
+              10: 5,
+              11: 8,
+              13: 6,
+              14: 7,
+            },
+            5: { 0: 5, 4: 8, 8: 7, 12: 9 },
+          };
+          return patterns[n] || {};
+        }
+        function scheduleBeat(tickAt, position) {
+          if (!stage) return;
+          const pattern = stagePattern(stage),
+            i = position % 16;
+          if (pattern[i] !== undefined) {
+            const note = SCALE[pattern[i]],
+              pan = Math.sin(position * 0.63) * 0.68;
+            const levels = [0, 0.024, 0.032, 0.036, 0.04, 0.043];
+            bell(
+              note,
+              tickAt,
+              pan,
+              levels[stage] * (0.84 + 0.21 * rand()),
+              1.6 + stage * 0.19,
+              melodyGate,
+            );
+          }
+          if (stage === 3 && i === 0) lowPulse(tickAt, 0.01);
+          if (stage === 4 && i % 4 === 0) lowPulse(tickAt, 0.019);
+          if (stage === 5 && i === 0)
+            bloomTone(77, tickAt, -0.3, 0.014, 5.9, melodyGate);
+        }
+        function scheduler() {
+          if (!playing || !ctx || ctx.state !== "running") return;
+          const horizon = ctx.currentTime + 0.18;
+          while (nextTick < horizon) {
+            // If rendering was suspended or tab backgrounded, skip stale beats rather than queue a burst.
+            if (nextTick >= ctx.currentTime - 0.04)
+              scheduleBeat(nextTick, step);
+            step++;
+            nextTick += EIGHTH;
+          }
+        }
+        function randomFirefly() {
+          if (!playing || !ctx || ctx.state !== "running" || !stage) return;
+          if (rand() > [0, 0.1, 0.18, 0.27, 0.36, 0.25][stage]) return;
+          const note = SCALE[Math.floor(rand() * Math.min(9, 4 + stage))];
+          bell(
+            note,
+            ctx.currentTime + 0.04,
+            (rand() - 0.5) * 1.58,
+            0.017 + stage * 0.002,
+            2.5,
+            melodyGate,
+          );
+        }
+        async function start() {
+          if (!initialized) initialize();
+          const ticket = ++serial;
+          await ctx.resume();
+          if (ticket !== serial) return;
+          playing = true;
+          updateUI();
+          fade(master.gain, userMaster, 1.6);
+          await Promise.all(
+            TRACKS.map(async (track) => {
+              if (!track.el.paused) return;
+              try {
+                await track.el.play();
+              } catch (e) {
+                track.status.textContent = "MISSING";
+                track.status.className = "source-state bad";
+                track.status.title = "Choose " + track.file + " with LOAD";
+              }
+            }),
+          );
+          if (!tickTimer) {
+            nextTick = ctx.currentTime + 0.12;
+            tickTimer = setInterval(scheduler, 50);
+          }
+          if (!ambientTimer) ambientTimer = setInterval(randomFirefly, 1250);
+        }
+        async function pause() {
+          if (!initialized || !playing) return;
+          const ticket = ++serial;
+          playing = false;
+          updateUI();
+          fade(master.gain, 0, 1.1);
+          await wait(1200);
+          if (ticket !== serial) return;
+          TRACKS.forEach((t) => {
+            t.el.pause();
+            if (!t.status.classList.contains("bad"))
+              t.status.textContent = "PAUSED";
+          });
+          await ctx.suspend();
+        }
+        async function selectStage(n, autoStart = true) {
+          const value = clamp(n, 0, 5),
+            changed = value !== stage;
+          if (!changed && playing) {
+            if (value > 0)
+              bell(
+                SCALE[Math.min(SCALE.length - 1, value + 3)],
+                ctx.currentTime + 0.06,
+                rand() * 1.4 - 0.7,
+                0.049,
+                2.4,
+              );
+            return;
+          }
+          stage = value;
+          updateUI();
+          $("liveMessage").textContent = NAMES[stage];
+          if (autoStart && !playing) {
+            try {
+              await start();
+            } catch (e) {
+              $("liveMessage").textContent = "Audio error: " + e.message;
+              return;
+            }
+          }
+          if (!ctx) return;
+          freshGate();
+          setMix(stage);
+          if (changed && playing) entryCue(stage);
+        }
+        $("toggle").addEventListener("click", async () => {
+          try {
+            if (playing) await pause();
+            else await start();
+          } catch (e) {
+            $("liveMessage").textContent = e.message;
+          }
+        });
+        $("next").addEventListener("click", () =>
+          selectStage(Math.min(5, stage + 1)),
+        );
+        $("reset").addEventListener("click", () => selectStage(0, false));
+        $("note").addEventListener("click", async () => {
+          try {
+            if (!playing) await start();
+            bell(
+              SCALE[Math.floor(rand() * SCALE.length)],
+              ctx.currentTime + 0.06,
+              rand() * 1.5 - 0.75,
+              0.067,
+              2.6,
+            );
+          } catch (e) {
+            $("liveMessage").textContent = e.message;
+          }
+        });
+        buttons.forEach((b) =>
+          b.addEventListener("click", () =>
+            selectStage(Number(b.dataset.stage)),
+          ),
+        );
+        $("volume").addEventListener("input", (e) => {
+          userMaster = Number(e.target.value) / 100;
+          $("volumeLabel").textContent = e.target.value + "%";
+          if (ctx) fade(master.gain, userMaster, 0.28);
+        });
+        TRACKS.forEach((track) => {
+          const chooser = $(track.id + "File");
+          document
+            .querySelector('[data-load="' + track.id + '"]')
+            .addEventListener("click", () => chooser.click());
+          chooser.addEventListener("change", async (e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
+            const wasPlaying = playing;
+            if (ctx) fade(track.gain.gain, 0, 0.65);
+            if (wasPlaying) await wait(700);
+            track.el.pause();
+            if (track.objectUrl) URL.revokeObjectURL(track.objectUrl);
+            track.objectUrl = URL.createObjectURL(file);
+            track.el.src = track.objectUrl;
+            track.el.load();
+            track.status.textContent = "LOADED";
+            track.status.className = "source-state good";
+            track.status.title = file.name;
+            if (wasPlaying) {
+              try {
+                await track.el.play();
+              } catch (err) {
+                track.status.textContent = "ERROR";
+                track.status.className = "source-state bad";
+              }
+            }
+            if (ctx)
+              fade(track.gain.gain, track.levels[stage] * track.trim, 2.5);
+          });
+          $(track.id + "Trim").addEventListener("input", (e) => {
+            track.trim = Number(e.target.value) / 100;
+            $(track.id + "TrimLabel").textContent = e.target.value + "%";
+            if (ctx)
+              fade(track.gain.gain, track.levels[stage] * track.trim, 0.4);
+          });
+          track.el.addEventListener("loadedmetadata", () => {
+            track.status.textContent = "READY";
+            track.status.className = "source-state good";
+            track.status.title = track.objectUrl
+              ? "Loaded manually"
+              : track.file;
+          });
+          track.el.addEventListener("playing", () => {
+            track.status.textContent = "PLAYING";
+            track.status.className = "source-state good";
+          });
+          track.el.addEventListener("error", () => {
+            track.status.textContent = "MISSING";
+            track.status.className = "source-state bad";
+            track.status.title = "Use LOAD for " + track.file;
+          });
+        });
+        window.addEventListener("keydown", (e) => {
+          if (
+            e.repeat ||
+            e.altKey ||
+            e.ctrlKey ||
+            e.metaKey ||
+            /^(INPUT|TEXTAREA|SELECT)$/.test(
+              document.activeElement?.tagName || "",
+            )
+          )
+            return;
+          if (e.code === "Space") {
+            e.preventDefault();
+            selectStage(Math.min(5, stage + 1));
+          } else if (/^Digit[1-5]$/.test(e.code))
+            selectStage(Number(e.code.slice(-1)));
+          else if (e.code === "KeyR") selectStage(0, false);
+          else if (e.code === "KeyF") $("note").click();
+        });
+        updateUI();
+      })();
+    </script>
+  </body>
+</html>
